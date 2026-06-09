@@ -1,26 +1,159 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius scale — rounded-xl (0.75rem) as base */
+  --radius-sm: calc(var(--radius) * 0.6); /* ~7px  */
+  --radius-md: calc(var(--radius) * 0.85); /* ~10px */
+  --radius-lg: var(--radius); /* 12px  */
+  --radius-xl: calc(var(--radius) * 1.33); /* 16px  */
+  --radius-2xl: calc(var(--radius) * 1.75); /* 21px  */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Dark theme tokens (oklch) ── */
+.dark {
+  --background: oklch(0.12 0.018 260);
+  --foreground: oklch(0.965 0.004 286); /* #F2F2F7 */
+
+  --card: oklch(0.13 0.013 264); /* #111118 */
+  --card-foreground: oklch(0.965 0.004 286);
+
+  --popover: oklch(0.15 0.012 264); /* #16161F */
+  --popover-foreground: oklch(0.965 0.004 286);
+
+  --primary: oklch(0.558 0.243 293); /* #8B5CF6 violet */
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary: oklch(0.15 0.012 264);
+  --secondary-foreground: oklch(0.62 0.015 286);
+
+  --muted: oklch(0.15 0.012 264);
+  --muted-foreground: oklch(0.45 0.015 286); /* #4A4A5A */
+
+  --accent: oklch(0.558 0.243 293); /* violet */
+  --accent-foreground: oklch(1 0 0);
+
+  --destructive: oklch(0.65 0.18 22); /* red */
+
+  --border: oklch(1 0 0 / 7%);
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.558 0.243 293);
+
+  --radius: 0.75rem; /* rounded-xl base */
+}
+
+/* ── Light theme (fallback, not used) ── */
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.12 0.018 260);
+  --foreground: oklch(100% 0.00011 271.152);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.558 0.243 293);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.558 0.243 293);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.558 0.243 293);
+}
+
+/* ── Base layer ── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply text-foreground min-h-screen;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Fixed mesh gradient background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      circle,
+      oklch(0.22 0.012 200) 0%,
+      /* #282E30 — center */ oklch(0.12 0.018 260) 100% /* #13161E — outer  */
+    );
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-foreground;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.2 0.012 264);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.558 0.243 293); /* accent on hover */
+  }
+
+  /* Selection */
+  ::selection {
+    background: oklch(0.558 0.243 293 / 20%);
+    color: oklch(0.965 0.004 286);
+  }
 }
