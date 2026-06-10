@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { NAV_ITEMS } from "@/config/navigation";
 import { NavItem } from "./nav-item";
@@ -13,8 +14,11 @@ export default function Navbar() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <nav
+    <motion.nav
       aria-label="Main Navigation"
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0 }}
       className="my-6 rounded-2xl border border-white/10 bg-black px-6 py-4"
     >
       <div className="flex items-center justify-between">
@@ -52,6 +56,6 @@ export default function Navbar() {
         {/* Right */}
         <NavbarStatus />
       </div>
-    </nav>
+    </motion.nav>
   );
 }
