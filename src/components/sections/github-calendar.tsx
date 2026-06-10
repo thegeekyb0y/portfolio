@@ -1,20 +1,63 @@
 "use client";
 
-import { BentoCard } from "@/components/shared/bento-card";
+import { useState, useEffect } from "react";
 import { GitHubCalendar } from "react-github-calendar";
+import { FaGithub } from "react-icons/fa6";
+import Link from "next/link";
+import { BentoCard } from "@/components/shared/bento-card";
+import { profile } from "@/config/profile";
 
 export function GithubContributions() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <BentoCard className="col-span-full overflow-hidden">
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold">GitHub Contributions</h2>
-        <p className="text-sm text-muted-foreground">
-          My coding activity over the last year.
-        </p>
+    <BentoCard className="h-full">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Open Source Activity</h2>
+          <p className="text-sm text-muted-foreground">
+            Contributions over the last year.
+          </p>
+        </div>
+
+        {/* Desktop/tablet: icon + text pill | Mobile: icon only */}
+        <Link
+          href="https://github.com/thegeekyb0y"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="
+            flex items-center gap-2
+            rounded-lg border border-white/10 bg-white/5
+            px-3 py-1.5
+            text-sm font-medium text-muted-foreground
+            transition-all duration-150
+            hover:-translate-y-0.5 hover:border-white/20 hover:text-foreground
+            active:scale-95 active:translate-y-0
+          "
+        >
+          <FaGithub className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">@thegeekyb0y</span>
+        </Link>
       </div>
 
-      <div className="overflow-x-auto">
-        <GitHubCalendar username="thegeekyb0y" fontSize={14} />
+      <div className="flex justify-center overflow-hidden">
+        {mounted ? (
+          <GitHubCalendar
+            username="thegeekyb0y"
+            blockSize={11.5}
+            blockMargin={3}
+            fontSize={12}
+            theme={{
+              dark: ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"],
+            }}
+          />
+        ) : (
+          <div className="h-[120px] w-full animate-pulse rounded-lg bg-white/5" />
+        )}
       </div>
     </BentoCard>
   );
