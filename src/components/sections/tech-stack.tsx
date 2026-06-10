@@ -70,8 +70,8 @@ function SkillChip({
         rounded-xl
         border border-white/10
         bg-white/3
-        px-3 py-2
-        text-sm
+        px-2.5 py-1.5
+        text-xs
         transition-all duration-200
         hover:border-white/20
         hover:bg-white/6
@@ -79,15 +79,17 @@ function SkillChip({
         hover:scale-105
         active:scale-95
         active:translate-y-0
+        sm:px-3 sm:py-2 sm:text-sm
       "
       style={{ "--brand-color": color } as React.CSSProperties}
     >
       <Icon
         className="
-          h-4 w-4
+          h-3.5 w-3.5
           text-foreground/80
           transition-colors duration-200
           group-hover:text-[var(--brand-color)]
+          sm:h-4 sm:w-4
         "
       />
       <span>{name}</span>
@@ -102,10 +104,10 @@ export function TechStack() {
 
   return (
     <div className="h-full">
-      <div className="mb-5 flex items-start justify-between">
+      <div className="mb-4 flex items-start justify-between sm:mb-5">
         <div>
-          <h2 className="text-lg font-semibold">Tech Stack</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-base font-semibold sm:text-lg">Tech Stack</h2>
+          <p className="text-xs text-muted-foreground sm:text-sm">
             {view === "stack"
               ? "Technologies I use to build and ship products."
               : "More tools I've worked with across projects."}
@@ -115,30 +117,32 @@ export function TechStack() {
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={() => setView(view === "stack" ? "tools" : "stack")}
+          aria-label={view === "stack" ? "Show more tools" : "Show main stack"}
           className="
-            flex h-9 w-9 items-center justify-center
+            flex h-8 w-8 items-center justify-center
             rounded-lg
             border border-white/10
             bg-white/3
             transition-all duration-200
             hover:border-white/20
             hover:bg-white/6
+            sm:h-9 sm:w-9
           "
         >
           <ArrowRight
             className={`
-              h-4 w-4 transition-transform duration-300
+              h-3.5 w-3.5 transition-transform duration-300 sm:h-4 sm:w-4
               ${view === "tools" ? "rotate-180" : ""}
             `}
           />
         </motion.button>
       </div>
 
-      <div className="relative min-h-30">
+      <div className="relative min-h-28 sm:min-h-30">
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
-            className="absolute inset-0 flex flex-wrap content-start gap-2"
+            className="absolute inset-0 flex flex-wrap content-start gap-1.5 sm:gap-2"
             initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}

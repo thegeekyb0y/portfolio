@@ -10,7 +10,7 @@ export function BentoCard({
     <div
       ref={ref}
       className={cn(
-        "rounded-xl border border-white/10 bg-black p-5",
+        "rounded-xl border border-white/10 bg-black p-4 sm:p-5",
         "transition-colors duration-300 hover:border-white/15",
         className,
       )}

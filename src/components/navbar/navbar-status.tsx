@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { BriefcaseBusiness, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useState } from "react";
 
 export default function NavbarStatus() {
@@ -17,8 +17,8 @@ export default function NavbarStatus() {
       className="
         relative
         flex
-        h-12
-        w-52
+        h-10
+        w-full
         items-center
         justify-center
         overflow-hidden
@@ -27,6 +27,8 @@ export default function NavbarStatus() {
         border-white/10
         bg-slate-900
         text-white
+        md:h-12
+        md:w-52
       "
     >
       <AnimatePresence mode="wait">
@@ -43,8 +45,9 @@ export default function NavbarStatus() {
               <span className="absolute h-3 w-3 animate-ping rounded-full bg-emerald-500/40" />
               <span className="h-3 w-3 rounded-full bg-emerald-500" />
             </div>
-
-            <span className="font-medium">Available for work</span>
+            <span className="text-sm font-medium md:text-base">
+              Available for work
+            </span>
           </motion.div>
         ) : (
           <motion.div
@@ -56,8 +59,9 @@ export default function NavbarStatus() {
             className="absolute flex items-center gap-3"
           >
             <FileText size={18} />
-
-            <span className="font-medium">View Resume</span>
+            <span className="text-sm font-medium md:text-base">
+              View Resume
+            </span>
           </motion.div>
         )}
       </AnimatePresence>

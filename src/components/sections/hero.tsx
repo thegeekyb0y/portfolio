@@ -10,12 +10,12 @@ import { profile, socials } from "@/config/profile";
 export function Hero() {
   return (
     <BentoCard className="flex min-h-70 flex-col justify-between gap-6">
-      {/* group: bio hover contrast */}
+      {/* Bio + avatar row */}
       <div className="group flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
           <h1
             className={cn(
-              "text-2xl font-bold leading-tight",
+              "text-xl font-bold leading-tight sm:text-2xl",
               "transition-opacity duration-300",
               "opacity-100 group-hover:opacity-50",
             )}
@@ -35,7 +35,7 @@ export function Hero() {
 
           <p
             className={cn(
-              "max-w-60 text-sm leading-relaxed",
+              "max-w-52 text-sm leading-relaxed sm:max-w-60",
               "transition-all duration-300",
               "text-muted-foreground opacity-75",
               "group-hover:text-foreground group-hover:opacity-100",
@@ -45,16 +45,16 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Profile image morph — scoped group/img so it doesn't bleed */}
+        {/* Profile image — smaller on mobile */}
         <div className="group/img relative shrink-0">
           <Image
             src={profile.avatar}
             alt={profile.fullName}
-            width={120}
-            height={120}
+            width={96}
+            height={96}
             priority
             className={cn(
-              "rounded-xl border border-white/10 object-cover",
+              "size-24 rounded-xl border border-white/10 object-cover sm:size-28 md:size-32",
               "transition-opacity duration-500 ease-in-out",
               "opacity-100 group-hover/img:opacity-0",
             )}
@@ -62,10 +62,10 @@ export function Hero() {
           <Image
             src="/secondimg.jpg"
             alt={`${profile.fullName} — alternate`}
-            width={120}
-            height={120}
+            width={96}
+            height={96}
             className={cn(
-              "absolute inset-0 rounded-xl border border-white/10 object-cover",
+              "absolute inset-0 size-24 rounded-xl border border-white/10 object-cover sm:size-28 md:size-32",
               "transition-opacity duration-500 ease-in-out",
               "opacity-0 group-hover/img:opacity-100",
             )}
@@ -73,15 +73,10 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Bottom row */}
-      <div className="flex items-center justify-between">
-        {/*
-         * TooltipProvider at this level:
-         * - delayDuration=0 so tooltips appear instantly, no mid-hover gap
-         * - skipDelayDuration=0 so rapid moves between icons never break
-         */}
+      {/* Bottom row: socials + resume */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {socials.map(({ label, href, icon: Icon }) => (
               <TooltipPrimitive.Root key={label}>
                 <TooltipPrimitive.Trigger asChild>
@@ -106,14 +101,11 @@ export function Hero() {
                   <TooltipPrimitive.Content
                     side="top"
                     sideOffset={8}
-                    // No CSS animation — instant show/hide eliminates the
-                    // half-played animation glitch on rapid hover
                     className={cn(
                       "z-50 rounded-md px-2.5 py-1",
                       "border border-white/10 bg-black/90 backdrop-blur-sm",
                       "text-xs font-medium text-foreground",
                       "select-none",
-                      // tw-animate-css classes that are already in your globals
                       "animate-in fade-in-0 zoom-in-95 duration-100",
                       "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75",
                     )}

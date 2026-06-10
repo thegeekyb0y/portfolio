@@ -19,15 +19,12 @@ export default function HomePage() {
 
       <FadeUp
         delay={0.25}
-        className="min-h-70 md:col-start-2 md:row-start-1 md:row-span-2 lg:col-start-3"
+        className="min-h-70 md:col-span-2 md:row-auto lg:col-span-1 lg:col-start-3 lg:row-span-2 lg:row-start-1"
       >
         <BentoCard className="h-full min-h-70" />
       </FadeUp>
 
-      <FadeUp
-        delay={0.35}
-        className="min-h-45 md:col-start-1 md:row-start-2 lg:col-span-2"
-      >
+      <FadeUp delay={0.35} className="md:col-span-2 lg:col-span-2">
         <GithubContributions />
       </FadeUp>
     </main>
