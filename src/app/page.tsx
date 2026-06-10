@@ -1,4 +1,5 @@
 import { Hero } from "@/components/sections/hero";
+import { TechStack } from "@/components/sections/tech-stack";
 import { BentoCard } from "@/components/shared/bento-card";
 import { FadeUp } from "@/components/shared/fade-up";
 import { GitHubCalendar } from "react-github-calendar";
@@ -11,7 +12,9 @@ export default function HomePage() {
       </FadeUp>
 
       <FadeUp delay={0.15} className="min-h-70">
-        <BentoCard className="h-full min-h-70" />
+        <BentoCard className="h-full min-h-70">
+          <TechStack />
+        </BentoCard>
       </FadeUp>
 
       <FadeUp
