@@ -3,6 +3,7 @@ import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar/navbar";
 import { AuroraBackground } from "@/components/ui/aurora-bg";
+import { Analytics } from "@vercel/analytics/next";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-sans",
@@ -12,9 +13,18 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "Aditya Tiwari — Full Stack Engineer",
+  title: "Aditya Tiwari : Full Stack Engineer",
   description:
     "Full-stack engineer building production-grade software with TypeScript, Next.js, and modern web tooling.",
+  keywords: [
+    "Aditya Tiwari",
+    "Full Stack Developer",
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Software Engineer",
+  ],
+  authors: [{ name: "Aditya Tiwari" }],
 };
 
 export default function RootLayout({
@@ -28,8 +38,10 @@ export default function RootLayout({
         <AuroraBackground /> {/* ← fixed, full screen */}
         <div className="max-w-7xl mx-auto w-full flex flex-col px-4">
           <Navbar />
+
           {children}
         </div>
+        <Analytics />
       </body>
     </html>
   );
