@@ -23,8 +23,8 @@ export default function Navbar() {
           <Image
             src="/profile.png"
             alt="Aditya Tiwari"
-            width={40}
-            height={40}
+            width={30}
+            height={30}
             className="rounded-full border border-white"
             priority
           />

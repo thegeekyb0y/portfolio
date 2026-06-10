@@ -99,6 +99,7 @@
   html {
     @apply font-sans;
     color-scheme: dark;
+    scroll-padding-top: 72px;
   }
 
   body {
@@ -106,20 +107,6 @@
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Fixed mesh gradient background */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: radial-gradient(
-      circle,
-      oklch(0.22 0.012 200) 0%,
-      /* #282E30 — center */ oklch(0.12 0.018 260) 100% /* #13161E — outer  */
-    );
   }
 
   /* Typography */
@@ -155,5 +142,48 @@
   ::selection {
     background: oklch(0.558 0.243 293 / 20%);
     color: oklch(0.965 0.004 286);
+  }
+}
+
+/* ── Aurora blob animations ── */
+@keyframes aurora-1 {
+  0%,
+  100% {
+    transform: translate(0%, 0%) scale(1);
+  }
+  25% {
+    transform: translate(8%, -10%) scale(1.08);
+  }
+  50% {
+    transform: translate(5%, 8%) scale(0.96);
+  }
+  75% {
+    transform: translate(-7%, 4%) scale(1.04);
+  }
+}
+
+@keyframes aurora-2 {
+  0%,
+  100% {
+    transform: translate(0%, 0%) scale(1);
+  }
+  33% {
+    transform: translate(-9%, 7%) scale(1.06);
+  }
+  66% {
+    transform: translate(6%, -6%) scale(0.94);
+  }
+}
+
+@keyframes aurora-3 {
+  0%,
+  100% {
+    transform: translate(0%, 0%) scale(1);
+  }
+  40% {
+    transform: translate(10%, -4%) scale(1.05);
+  }
+  80% {
+    transform: translate(-5%, 9%) scale(0.97);
   }
 }
