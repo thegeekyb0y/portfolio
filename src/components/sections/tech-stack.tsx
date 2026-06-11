@@ -65,28 +65,20 @@ function SkillChip({
   return (
     <div
       className="
-        group
-        flex items-center gap-2
-        rounded-xl
-        border border-white/10
-        bg-white/3
-        px-2.5 py-1.5
-        text-xs
+        group flex items-center gap-2
+        rounded-xl border border-white/10 bg-white/3
+        px-2.5 py-1.5 text-xs
         transition-all duration-200
-        hover:border-white/20
-        hover:bg-white/6
-        hover:-translate-y-0.5
-        hover:scale-105
-        active:scale-95
-        active:translate-y-0
+        hover:border-white/20 hover:bg-white/6
+        hover:-translate-y-0.5 hover:scale-105
+        active:scale-95 active:translate-y-0
         sm:px-3 sm:py-2 sm:text-sm
       "
       style={{ "--brand-color": color } as React.CSSProperties}
     >
       <Icon
         className="
-          h-3.5 w-3.5 shrink-0
-          text-foreground/80
+          h-3.5 w-3.5 shrink-0 text-foreground/80
           transition-colors duration-200
           group-hover:text-[var(--brand-color)]
           sm:h-4 sm:w-4
@@ -104,7 +96,6 @@ export function TechStack() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
       <div className="mb-4 flex items-start justify-between sm:mb-5">
         <div>
           <h2 className="text-base font-semibold sm:text-lg">Tech Stack</h2>
@@ -121,12 +112,9 @@ export function TechStack() {
           aria-label={view === "stack" ? "Show more tools" : "Show main stack"}
           className="
             flex h-8 w-8 shrink-0 items-center justify-center
-            rounded-lg
-            border border-white/10
-            bg-white/3
+            rounded-lg border border-white/10 bg-white/3
             transition-all duration-200
-            hover:border-white/20
-            hover:bg-white/6
+            hover:border-white/20 hover:bg-white/6
             sm:h-9 sm:w-9
           "
         >
@@ -139,11 +127,33 @@ export function TechStack() {
         </motion.button>
       </div>
 
-      <div className="overflow-hidden">
+      {/*
+       * Sentinel (sm+): invisible techStack chips hold the container height
+       * so toggling views never causes a grid layout shift.
+       * Hidden on mobile — chips flow naturally there.
+       *
+       * No overflow-hidden here: lets hover scale-105 breathe freely.
+       */}
+      <div className="relative">
+        {/* height anchor — sm+ only */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none hidden select-none sm:flex sm:flex-wrap sm:gap-2 sm:[visibility:hidden]"
+        >
+          {techStack.map((item) => (
+            <SkillChip
+              key={`sentinel-${item.name}`}
+              name={item.name}
+              Icon={item.icon}
+              color={item.color}
+            />
+          ))}
+        </div>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
-            className="flex flex-wrap gap-1.5 sm:gap-2"
+            className="flex flex-wrap gap-1.5 sm:absolute sm:inset-0 sm:gap-2 sm:content-start"
             initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}

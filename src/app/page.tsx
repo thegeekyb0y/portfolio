@@ -7,16 +7,16 @@ import { GithubContributions } from "@/components/sections/github-calendar";
 export default function HomePage() {
   return (
     <main className="grid grid-cols-1 gap-3 pb-6 sm:grid-cols-2 lg:grid-cols-3">
-      {/* Hero — col 1 always */}
-      <FadeUp delay={0.05}>
+      {/*
+       * h-full on FadeUp → the motion.div fills the CSS Grid cell height.
+       * Hero's BentoCard (also h-full) then fills that → both row-1 cards
+       * are pixel-identical in height, bottom edges flush with each other.
+       */}
+      <FadeUp delay={0.05} className="h-full">
         <Hero />
       </FadeUp>
 
-      {/*
-       * Tech Stack — col 2 on sm/tablet, col 2 on desktop.
-       * No min-height: let chips determine the card height naturally.
-       */}
-      <FadeUp delay={0.15}>
+      <FadeUp delay={0.15} className="h-full">
         <BentoCard className="h-full">
           <TechStack />
         </BentoCard>

@@ -9,7 +9,9 @@ import { profile, socials } from "@/config/profile";
 
 export function Hero() {
   return (
-    <BentoCard className="flex flex-col justify-between gap-5">
+    // h-full added so this card stretches to the full CSS-Grid row height,
+    // matching TechStack's BentoCard and keeping the bottom edges flush.
+    <BentoCard className="h-full flex flex-col justify-between gap-5">
       {/* Top: bio + avatar — always side by side at every breakpoint */}
       <div className="group flex items-start justify-between gap-4">
         {/* Text */}
