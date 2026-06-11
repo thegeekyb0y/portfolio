@@ -12,7 +12,8 @@ export function Hero() {
     <BentoCard className="flex min-h-70 flex-col justify-between gap-6">
       {/* Bio + avatar row */}
       <div className="group flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1.5">
+        {/* Text — full width on mobile, constrained on sm+ when image is visible */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <h1
             className={cn(
               "text-xl font-bold leading-tight sm:text-2xl",
@@ -35,7 +36,7 @@ export function Hero() {
 
           <p
             className={cn(
-              "max-w-52 text-sm leading-relaxed sm:max-w-60",
+              "text-sm leading-relaxed",
               "transition-all duration-300",
               "text-muted-foreground opacity-75",
               "group-hover:text-foreground group-hover:opacity-100",
@@ -45,16 +46,16 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Profile image — smaller on mobile */}
-        <div className="group/img relative shrink-0">
+        {/* Profile image — hidden on mobile, shown sm+ */}
+        <div className="group/img relative hidden shrink-0 sm:block">
           <Image
             src={profile.avatar}
             alt={profile.fullName}
-            width={96}
-            height={96}
+            width={112}
+            height={112}
             priority
             className={cn(
-              "size-24 rounded-xl border border-white/10 object-cover sm:size-28 md:size-32",
+              "size-28 rounded-xl border border-white/10 object-cover md:size-32",
               "transition-opacity duration-500 ease-in-out",
               "opacity-100 group-hover/img:opacity-0",
             )}
@@ -62,10 +63,10 @@ export function Hero() {
           <Image
             src="/secondimg.jpg"
             alt={`${profile.fullName} — alternate`}
-            width={96}
-            height={96}
+            width={112}
+            height={112}
             className={cn(
-              "absolute inset-0 size-24 rounded-xl border border-white/10 object-cover sm:size-28 md:size-32",
+              "absolute inset-0 size-28 rounded-xl border border-white/10 object-cover md:size-32",
               "transition-opacity duration-500 ease-in-out",
               "opacity-0 group-hover/img:opacity-100",
             )}
@@ -76,7 +77,7 @@ export function Hero() {
       {/* Bottom row: socials + resume */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex flex-wrap items-center gap-1.5">
             {socials.map(({ label, href, icon: Icon }) => (
               <TooltipPrimitive.Root key={label}>
                 <TooltipPrimitive.Trigger asChild>
@@ -107,7 +108,8 @@ export function Hero() {
                       "text-xs font-medium text-foreground",
                       "select-none",
                       "animate-in fade-in-0 zoom-in-95 duration-100",
-                      "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75",
+                      "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
+                      "data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75",
                     )}
                   >
                     {label}

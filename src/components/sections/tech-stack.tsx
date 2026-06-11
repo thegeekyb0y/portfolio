@@ -85,14 +85,14 @@ function SkillChip({
     >
       <Icon
         className="
-          h-3.5 w-3.5
+          h-3.5 w-3.5 shrink-0
           text-foreground/80
           transition-colors duration-200
           group-hover:text-[var(--brand-color)]
           sm:h-4 sm:w-4
         "
       />
-      <span>{name}</span>
+      <span className="whitespace-nowrap">{name}</span>
     </div>
   );
 }
@@ -103,7 +103,8 @@ export function TechStack() {
   const items = view === "stack" ? techStack : toolsUsed;
 
   return (
-    <div className="h-full">
+    <div className="flex h-full flex-col">
+      {/* Header */}
       <div className="mb-4 flex items-start justify-between sm:mb-5">
         <div>
           <h2 className="text-base font-semibold sm:text-lg">Tech Stack</h2>
@@ -119,7 +120,7 @@ export function TechStack() {
           onClick={() => setView(view === "stack" ? "tools" : "stack")}
           aria-label={view === "stack" ? "Show more tools" : "Show main stack"}
           className="
-            flex h-8 w-8 items-center justify-center
+            flex h-8 w-8 shrink-0 items-center justify-center
             rounded-lg
             border border-white/10
             bg-white/3
@@ -138,11 +139,11 @@ export function TechStack() {
         </motion.button>
       </div>
 
-      <div className="relative min-h-28 sm:min-h-30">
+      <div className="overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
-            className="absolute inset-0 flex flex-wrap content-start gap-1.5 sm:gap-2"
+            className="flex flex-wrap gap-1.5 sm:gap-2"
             initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
