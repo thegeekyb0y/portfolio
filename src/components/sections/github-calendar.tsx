@@ -56,8 +56,23 @@ export function GithubContributions() {
             }}
           />
         ) : (
-          <div className="h-[120px] w-full animate-pulse rounded-lg bg-white/5" />
+          <div className="h-30 w-full animate-pulse rounded-lg bg-white/5" />
         )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/5 pt-4">
+        <span className="text-xs text-muted-foreground/60 shrink-0">
+          Currently exploring
+        </span>
+        <span className="text-xs text-muted-foreground/40 shrink-0">→</span>
+        {["LangGraph", "RAG Pipelines", "System Design"].map((tag) => (
+          <span
+            key={tag}
+            className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground transition-colors duration-150 hover:border-white/20 hover:text-foreground"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
     </BentoCard>
   );

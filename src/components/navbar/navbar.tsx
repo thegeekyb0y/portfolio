@@ -21,7 +21,7 @@ export default function Navbar() {
       initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="my-4 rounded-2xl border border-white/10 bg-black px-4 py-3 md:my-6 md:px-6 md:py-4"
+      className="my-4 rounded-xl border border-white/10 bg-black px-4 py-3 md:my-6 md:px-6 md:py-4"
     >
       {/* ── Top bar ── */}
       <div className="flex items-center justify-between">
