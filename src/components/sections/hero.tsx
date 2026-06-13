@@ -2,19 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { LuDownload } from "react-icons/lu";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-
 import { BentoCard } from "@/components/shared/bento-card";
 import { cn } from "@/lib/utils";
 import { profile, socials } from "@/config/profile";
 
+// Direct GIF URL from Tenor
+const HOVER_GIF = "https://media1.tenor.com/m/LYget1dhLygAAAAC/google-it.gif";
+
 export function Hero() {
   return (
-    // h-full added so this card stretches to the full CSS-Grid row height,
-    // matching TechStack's BentoCard and keeping the bottom edges flush.
     <BentoCard className="h-full flex flex-col justify-between gap-5">
-      {/* Top: bio + avatar — always side by side at every breakpoint */}
       <div className="group flex items-start justify-between gap-4">
-        {/* Text */}
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <h1
             className={cn(
@@ -59,13 +57,11 @@ export function Hero() {
               "opacity-100 group-hover/img:opacity-0",
             )}
           />
-          <Image
-            src="/secondimg.jpg"
-            alt={`${profile.fullName} — alternate`}
-            width={96}
-            height={96}
+          <img
+            src={HOVER_GIF}
+            alt="Google it"
             className={cn(
-              "absolute inset-0 size-20 rounded-xl border border-white/10 object-cover",
+              "absolute inset-0 size-24 rounded-xl border border-white/10 object-cover",
               "sm:size-24 lg:size-28",
               "transition-opacity duration-500 ease-in-out",
               "opacity-0 group-hover/img:opacity-100",
@@ -74,10 +70,8 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Thin rule */}
       <div className="h-px w-full bg-white/5" />
 
-      {/* Bottom: socials left, resume right */}
       <div className="flex items-center justify-between gap-3">
         <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -131,7 +125,7 @@ export function Hero() {
             "flex shrink-0 items-center gap-2 rounded-lg px-3.5 py-2",
             "border border-white/10 bg-white/5",
             "text-sm font-medium transition-all duration-200",
-            "hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/8",
+            "hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.08]",
             "active:scale-95 active:translate-y-0 active:opacity-75",
           )}
         >
