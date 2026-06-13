@@ -1,53 +1,41 @@
 export function AuroraBackground() {
   return (
     <div aria-hidden="true" className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Base static gradient — #282E30 center → #13161E outer */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle,oklch(0.22_0.012_200)_0%,oklch(0.12_0.018_260)_100%)]" />
+      {/* Dark grey base — matches Simon's dark neutral */}
+      <div className="absolute inset-0 bg-[#111118]" />
 
-      {/* Blob 1 — top left, large violet */}
+      {/* Blob 1 — left side, violet/purple */}
       <div
-        className="absolute rounded-full opacity-[0.18]"
         style={{
-          width: "65vw",
-          height: "65vw",
-          top: "-15%",
-          left: "-10%",
+          position: "absolute",
+          width: "60vw",
+          height: "60vw",
+          top: "-10%",
+          left: "-20%",
+          borderRadius: "50%",
           background:
-            "radial-gradient(circle, oklch(0.558 0.243 293) 0%, transparent 70%)",
-          filter: "blur(72px)",
-          animation: "aurora-1 28s ease-in-out infinite",
+            "radial-gradient(circle at center, #7c3aed 0%, #4f1db5 40%, transparent 70%)",
+          filter: "blur(80px)",
+          opacity: 0.25,
+          animation: "blob-left 20s ease-in-out infinite",
           willChange: "transform",
         }}
       />
 
-      {/* Blob 2 — bottom right, deeper violet */}
+      {/* Blob 2 — right side, teal/emerald */}
       <div
-        className="absolute rounded-full opacity-[0.14]"
         style={{
+          position: "absolute",
           width: "55vw",
           height: "55vw",
-          bottom: "-20%",
-          right: "-10%",
+          bottom: "-15%",
+          right: "-15%",
+          borderRadius: "50%",
           background:
-            "radial-gradient(circle, oklch(0.45 0.22 280) 0%, transparent 70%)",
+            "radial-gradient(circle at center, #0d9488 0%, #065f46 40%, transparent 70%)",
           filter: "blur(90px)",
-          animation: "aurora-2 36s ease-in-out infinite",
-          willChange: "transform",
-        }}
-      />
-
-      {/* Blob 3 — center, subtle indigo drift */}
-      <div
-        className="absolute rounded-full opacity-[0.09]"
-        style={{
-          width: "40vw",
-          height: "40vw",
-          top: "30%",
-          left: "35%",
-          background:
-            "radial-gradient(circle, oklch(0.62 0.20 263) 0%, transparent 70%)",
-          filter: "blur(100px)",
-          animation: "aurora-3 44s ease-in-out infinite",
+          opacity: 0.2,
+          animation: "blob-right 26s ease-in-out infinite",
           willChange: "transform",
         }}
       />

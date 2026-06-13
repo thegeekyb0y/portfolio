@@ -133,7 +133,7 @@ export function ProjectsSection() {
       </div>
 
       {/* Project cards */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-5 sm:grid sm:grid-cols-2 lg:flex lg:flex-col lg:gap-5">
         {preview.map((project) => (
           <ProjectCard key={project.title} project={project} />
         ))}

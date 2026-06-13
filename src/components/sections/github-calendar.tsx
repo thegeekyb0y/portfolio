@@ -60,7 +60,7 @@ export function GithubContributions() {
         )}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/5 pt-4">
+      <div className="mt-4 flex items-center gap-2 border-t border-white/5 pt-4 overflow-x-auto scrollbar-none">
         <span className="text-xs text-muted-foreground/60 shrink-0">
           Currently exploring
         </span>
@@ -68,7 +68,7 @@ export function GithubContributions() {
         {["LangGraph", "RAG Pipelines", "System Design"].map((tag) => (
           <span
             key={tag}
-            className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground transition-colors duration-150 hover:border-white/20 hover:text-foreground"
+            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground transition-colors duration-150 hover:border-white/20 hover:text-foreground"
           >
             {tag}
           </span>

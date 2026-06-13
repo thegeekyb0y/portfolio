@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface NavItemProps {
   title: string;
@@ -40,7 +41,12 @@ export function NavItem({
         />
       )}
 
-      <div className="relative z-10 flex items-center gap-2 px-4 py-2.5 text-white md:px-5 md:py-3">
+      <div
+        className={cn(
+          "relative z-10 flex items-center gap-2 px-4 py-2.5 md:px-5 md:py-3 transition-colors duration-200",
+          hovered === title || active ? "text-white" : "text-white/40",
+        )}
+      >
         <Icon className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
         <span className="text-sm md:text-base">{title}</span>
       </div>

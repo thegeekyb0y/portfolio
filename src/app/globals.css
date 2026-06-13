@@ -145,45 +145,28 @@
   }
 }
 
-/* ── Aurora blob animations ── */
-@keyframes aurora-1 {
-  0%,
-  100% {
-    transform: translate(0%, 0%) scale(1);
-  }
-  25% {
-    transform: translate(8%, -10%) scale(1.08);
-  }
-  50% {
-    transform: translate(5%, 8%) scale(0.96);
-  }
-  75% {
-    transform: translate(-7%, 4%) scale(1.04);
-  }
-}
-
-@keyframes aurora-2 {
+@keyframes blob-left {
   0%,
   100% {
     transform: translate(0%, 0%) scale(1);
   }
   33% {
-    transform: translate(-9%, 7%) scale(1.06);
+    transform: translate(6%, 8%) scale(1.06);
   }
   66% {
-    transform: translate(6%, -6%) scale(0.94);
+    transform: translate(-4%, 5%) scale(0.96);
   }
 }
 
-@keyframes aurora-3 {
+@keyframes blob-right {
   0%,
   100% {
     transform: translate(0%, 0%) scale(1);
   }
-  40% {
-    transform: translate(10%, -4%) scale(1.05);
+  33% {
+    transform: translate(-7%, -6%) scale(1.05);
   }
-  80% {
-    transform: translate(-5%, 9%) scale(0.97);
+  66% {
+    transform: translate(5%, 4%) scale(0.97);
   }
 }
