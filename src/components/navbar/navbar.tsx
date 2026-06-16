@@ -5,7 +5,6 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-
 import { NAV_ITEMS } from "@/config/navigation";
 import { NavItem } from "./nav-item";
 import NavbarStatus from "./navbar-status";
@@ -15,6 +14,8 @@ export default function Navbar() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  if (/^\/projects\/.+/.test(pathname)) return null;
+
   return (
     <motion.nav
       aria-label="Main Navigation"
@@ -23,9 +24,7 @@ export default function Navbar() {
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="my-4 rounded-xl border border-white/10 bg-black px-4 py-3 md:my-6 md:px-6 md:py-4"
     >
-      {/* ── Top bar ── */}
       <div className="flex items-center justify-between">
-        {/* Left: avatar + name */}
         <div className="flex items-center gap-3">
           <Image
             src="/profile.png"
@@ -40,7 +39,6 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* Center nav — hidden on mobile, visible md+ */}
         <div className="hidden items-center gap-2 md:flex">
           {NAV_ITEMS.map((item) => (
             <NavItem
@@ -55,13 +53,10 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Right: status button (hidden on mobile) + hamburger */}
         <div className="flex items-center gap-3">
           <div className="hidden md:block">
             <NavbarStatus />
           </div>
-
-          {/* Hamburger — visible only on mobile */}
           <button
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -77,7 +72,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ── Mobile drawer ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -100,7 +94,6 @@ export default function Navbar() {
                   active={pathname === item.href}
                 />
               ))}
-              {/* Status button inside drawer on mobile */}
               <div className="pt-2">
                 <NavbarStatus />
               </div>

@@ -9,6 +9,7 @@ interface ProjectImageProps {
   slug: string;
   className?: string;
   priority?: boolean;
+  sizes?: string;
 }
 
 export function ProjectImage({
@@ -17,6 +18,7 @@ export function ProjectImage({
   slug,
   className,
   priority,
+  sizes = "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw",
 }: ProjectImageProps) {
   return (
     <motion.div layoutId={`project-image-${slug}`} className={className}>
@@ -25,8 +27,8 @@ export function ProjectImage({
         alt={alt}
         fill
         priority={priority}
+        sizes={sizes}
         className="object-cover object-top"
-        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
       />
     </motion.div>
   );
