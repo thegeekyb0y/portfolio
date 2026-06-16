@@ -11,7 +11,7 @@ export const projects: Project[] = [
   {
     title: "Kraked",
     description: "Realtime Collaborative Study Platform",
-    image: "/pg1.png",
+    image: "/projects/pg1.png",
     liveUrl: "https://dsbored121.vercel.app",
     githubUrl: "https://github.com/thegeekyb0y/dsbored121",
     tags: ["Next.js", "Prisma", "NextAuth", "Redis", "PostgreSQL"],
@@ -19,7 +19,7 @@ export const projects: Project[] = [
   {
     title: "NpmSearch",
     description: "Fast npm package browser with Redis caching",
-    image: "/pg2.png",
+    image: "/projects/pg2.png",
     liveUrl: "https://npmsearch121.vercel.app",
     githubUrl: "https://github.com/thegeekyb0y/npmsearch",
     tags: ["Next.js", "Redis", "Tailwind"],
@@ -35,9 +35,18 @@ export const projects: Project[] = [
   {
     title: "Music Hi Kehde",
     description: "A landing page created with React and TailwindCSS",
-    image: "/pg4.png",
+    image: "/projects/pg3.png",
     githubUrl: "https://github.com/thegeekyb0y/musichikehde",
     liveUrl: "https://musichikehde.vercel.app",
     tags: ["React", "Tailwind"],
+  },
+  {
+    title: "SMS Spam Classifier",
+    description:
+      "A Machine Learning Project to detect if a email/sms is spam or not.",
+    image: "/projects/pg5.png",
+    githubUrl: "https://github.com/thegeekyb0y/sms-spam-classifier",
+    liveUrl: "https://sms-spamdetector.streamlit.app/",
+    tags: ["Python", "Machine Learning", "Streamlit"],
   },
 ];

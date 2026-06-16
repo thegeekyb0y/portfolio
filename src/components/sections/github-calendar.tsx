@@ -23,8 +23,6 @@ export function GithubContributions() {
             Contributions over the last year.
           </p>
         </div>
-
-        {/* Desktop/tablet: icon + text pill | Mobile: icon only */}
         <Link
           href="https://github.com/thegeekyb0y"
           target="_blank"
