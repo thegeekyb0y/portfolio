@@ -4,12 +4,19 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Home, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Home,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { FaGithub } from "react-icons/fa6";
 import { ProjectImage } from "@/components/ui/project-image";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/config/projects";
+import { getAdjacentProjects } from "@/config/projects";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -34,16 +41,17 @@ const pillBtn = cn(
 
 export function ProjectDetailClient({ project }: { project: Project }) {
   const router = useRouter();
+  const { prev, next } = getAdjacentProjects(project.slug);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="fixed inset-0 overflow-y-auto bg-black px-4 py-8"
-    >
-      <div className="max-w-3xl mx-auto flex flex-col gap-8">
+    <div className="fixed inset-0 overflow-y-auto bg-black px-4 py-8">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-3xl mx-auto flex flex-col gap-8"
+      >
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -130,7 +138,7 @@ export function ProjectDetailClient({ project }: { project: Project }) {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="text-base leading-relaxed text-white/70"
         >
           {project.longDescription}
@@ -140,7 +148,7 @@ export function ProjectDetailClient({ project }: { project: Project }) {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.15 }}
+          transition={{ delay: 0.2 }}
           className="relative w-full overflow-hidden rounded-2xl border border-white/10"
           style={{ aspectRatio: "16/9" }}
         >
@@ -153,7 +161,53 @@ export function ProjectDetailClient({ project }: { project: Project }) {
             className="absolute inset-0 h-full w-full"
           />
         </motion.div>
-      </div>
-    </motion.div>
+
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.25 }}
+          className="flex flex-col gap-6 pb-8"
+        >
+          <div className="h-px w-full bg-white/10" />
+
+          <div className="flex items-center justify-between">
+            {prev ? (
+              <Link
+                href={`/projects/${prev.slug}`}
+                className="group flex flex-col gap-1"
+              >
+                <span className="flex items-center gap-1 text-xs text-white/40">
+                  <ChevronLeft className="h-3 w-3" />
+                  Previous
+                </span>
+                <span className="text-base font-semibold text-white transition-opacity duration-150 group-hover:opacity-70">
+                  {prev.title}
+                </span>
+              </Link>
+            ) : (
+              <div />
+            )}
+
+            {next ? (
+              <Link
+                href={`/projects/${next.slug}`}
+                className="group flex flex-col items-end gap-1"
+              >
+                <span className="flex items-center gap-1 text-xs text-white/40">
+                  Next
+                  <ChevronRight className="h-3 w-3" />
+                </span>
+                <span className="text-base font-semibold text-white transition-opacity duration-150 group-hover:opacity-70">
+                  {next.title}
+                </span>
+              </Link>
+            ) : (
+              <div />
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }
