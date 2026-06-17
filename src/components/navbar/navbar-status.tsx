@@ -4,13 +4,14 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText } from "lucide-react";
 import { useState } from "react";
+import { profile } from "@/config/profile";
 
 export default function NavbarStatus() {
   const [hovered, setHovered] = useState(false);
 
   return (
     <Link
-      href="/resume.pdf"
+      href={profile.resume}
       target="_blank"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

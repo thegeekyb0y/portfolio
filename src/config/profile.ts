@@ -18,7 +18,8 @@ export const profile = {
   role: "Engineer & Full Stack Developer",
   bio: "I build and ship software from the ground up, combining full-stack development with AI to create useful, user-focused products.",
   avatar: "/profile.jpg",
-  resume: "/resume.pdf",
+  resume:
+    "https://drive.google.com/file/d/1Iv49tbMmenmPZ3h8NnZvbLbx_Hefzah7/view?usp=sharing",
   openToWork: true,
 } as const;
 

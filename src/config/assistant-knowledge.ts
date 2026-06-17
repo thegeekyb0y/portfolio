@@ -54,7 +54,7 @@ Leadership: Core team @ The Hackers Meetup Noida. Organizer @ Kotlin User Group 
 Socials: ${socialList}
 GitHub: https://github.com/thegeekyb0y
 LinkedIn: https://linkedin.com/in/adityacodes
-Resume: /resume.pdf
+Resume: ${profile.resume}
 
 ---
 

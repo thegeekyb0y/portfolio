@@ -1,6 +1,11 @@
 import { BriefcaseBusiness, FileText } from "lucide-react";
 
-export const STATUS_ITEMS = [
+export const STATUS_ITEMS: {
+  id: string;
+  label: string;
+  icon: typeof BriefcaseBusiness;
+  href: string | null;
+}[] = [
   {
     id: "work",
     label: "Available for work",
@@ -11,6 +16,6 @@ export const STATUS_ITEMS = [
     id: "resume",
     label: "View Resume",
     icon: FileText,
-    href: "/resume.pdf",
+    href: "https://drive.google.com/file/d/1Iv49tbMmenmPZ3h8NnZvbLbx_Hefzah7/view?usp=sharing",
   },
-] as const;
+];
