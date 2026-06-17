@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { profile, socials } from "@/config/profile";
 import { BentoCard } from "@/components/shared/bento-card";
 import { ContactForm } from "./contact-form";
@@ -7,14 +10,16 @@ import { ContactForm } from "./contact-form";
 export function ContactSidebar() {
   return (
     <div className="flex flex-col gap-6 lg:sticky lg:top-6">
-      <BentoCard className="flex flex-col items-center gap-4 text-center">
-        <Image
-          src={profile.avatar}
-          alt={profile.fullName}
-          width={88}
-          height={88}
-          className="rounded-xl border border-white/10 object-cover"
-        />
+      <BentoCard className="hidden lg:flex flex-col items-center gap-4 text-center">
+        <motion.div layoutId="profile-avatar">
+          <Image
+            src={profile.avatar}
+            alt={profile.fullName}
+            width={88}
+            height={88}
+            className="rounded-xl border border-white/10 object-cover"
+          />
+        </motion.div>
         <div>
           <h1 className="text-lg font-semibold">I&apos;m {profile.name} 👋</h1>
           <p className="mt-1 text-sm text-muted-foreground">{profile.role}</p>

@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main className="grid grid-cols-1 gap-6 pb-10 lg:grid-cols-3 lg:items-start">
-      <FadeUp delay={0.05} className="order-2 lg:order-1 lg:col-span-2">
+      <FadeUp delay={0.05} className="lg:col-span-2">
         <ChatPanel />
       </FadeUp>
-      <FadeUp delay={0.15} className="order-1 lg:order-2 lg:col-span-1">
+      <FadeUp delay={0.15} className="lg:col-span-1">
         <ContactSidebar />
       </FadeUp>
     </main>
