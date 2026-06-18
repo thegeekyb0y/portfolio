@@ -8,9 +8,8 @@ export const maxDuration = 30;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-const MAX_TOKENS = 500;
-
-const MAX_HISTORY_TURNS = 2;
+// Enough tokens for a 70-word reply + followups + action, with headroom
+const MAX_TOKENS = 300;
 
 type Role = "user" | "assistant";
 
@@ -86,8 +85,11 @@ function parsePayload(raw: string): AssistantPayload {
 function fallbackPayload(): AssistantPayload {
   return {
     reply:
-      "I don't have details on that — feel free to reach out to Aditya directly.",
-    followups: ["What projects has he built?", "Is he open to internships?"],
+      "I don't have details on that — feel free to reach out to Aditya directly via the contact form or LinkedIn.",
+    followups: [
+      "What projects has he built recently?",
+      "Is he open to internships or full-time roles?",
+    ],
   };
 }
 
@@ -131,7 +133,19 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  const trimmedMessages = messages.slice(-MAX_HISTORY_TURNS);
+  // Stateless: only send the latest user message — no history.
+  // The system prompt has all the context needed to answer any question.
+  // This halves input tokens compared to keeping 2 turns of history.
+  const latestUserMessage = [...messages]
+    .reverse()
+    .find((m) => m.role === "user");
+
+  if (!latestUserMessage) {
+    return NextResponse.json(
+      { error: "No user message found." },
+      { status: 400 },
+    );
+  }
 
   let payload: AssistantPayload;
 
@@ -144,12 +158,12 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
-        temperature: 0.3,
-        max_tokens: MAX_TOKENS, // 400 vs old 1024
+        temperature: 0.4,
+        max_tokens: MAX_TOKENS,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          ...trimmedMessages,
+          { role: "user", content: latestUserMessage.content },
         ],
       }),
     });
@@ -194,7 +208,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  persistConversation(id, trimmedMessages, payload.reply).catch((err) =>
+  // Persist for analytics — fire-and-forget
+  persistConversation(id, latestUserMessage, payload.reply).catch((err) =>
     console.error("[chat/route] Persistence failed:", err),
   );
 
@@ -203,7 +218,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
 async function persistConversation(
   sessionId: string,
-  messages: ChatMessage[],
+  userMessage: ChatMessage,
   assistantReply: string,
 ): Promise<void> {
   await prisma.chatSession.upsert({
@@ -216,16 +231,8 @@ async function persistConversation(
     prisma.chatMessage.deleteMany({ where: { sessionId } }),
     prisma.chatMessage.createMany({
       data: [
-        ...messages.map((m) => ({
-          sessionId,
-          role: m.role,
-          content: m.content,
-        })),
-        {
-          sessionId,
-          role: "assistant" as const,
-          content: assistantReply,
-        },
+        { sessionId, role: userMessage.role, content: userMessage.content },
+        { sessionId, role: "assistant" as const, content: assistantReply },
       ],
     }),
   ]);
