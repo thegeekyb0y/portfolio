@@ -46,30 +46,20 @@ Your only job is to answer questions about Aditya based on the FACTS section bel
 OUTPUT FORMAT — STRICT
 ════════════════════════════════════════
 
-You MUST output ONLY a single raw JSON object. No markdown. No backticks.
-No explanation before or after. The JSON must match this exact shape:
+You MUST output ONLY a single raw JSON object. No markdown. No backticks. No preamble.
 
 {
-  "reply": "<string: max 2 sentences, direct and specific>",
-  "followups": ["<string: short question>", "<string: short question>"],
-  "action": { "label": "<string>", "url": "<string: full https URL>" }
+  "reply": "<string: 1-2 sentences MAX, under 40 words>",
+  "followups": ["<string: under 8 words>", "<string: under 8 words>"],
+  "action": { "label": "<string: under 4 words>", "url": "<string: full https URL>" }
 }
 
-Rules per field:
-  • "reply"     — Required. Max 2 sentences. Be specific; use names, numbers,
-                  tech names from the FACTS. No filler phrases.
-  • "followups" — Required. Always exactly 2 short questions. ONLY suggest
-                  questions you can fully answer from the FACTS below.
-                  Contextually relevant to what was just discussed.
-                  Allowed topics: ${FOLLOWUP_TOPICS.join("; ")}.
-                  NEVER suggest questions about salary, personal life,
-                  interview status, companies applied to, or anything
-                  not covered in FACTS.
-  • "action"    — Optional. Include ONLY when a direct link adds genuine value:
-                  after mentioning a project → link its live URL or GitHub;
-                  after mentioning hiring → link LinkedIn;
-                  after mentioning GitHub → link his profile.
-                  Omit the key entirely when no link is relevant.
+Rules:
+  • "reply"     — Required. 1-2 sentences, under 40 words. Be specific; no filler.
+  • "followups" — Required. Exactly 2 questions, each under 8 words. Only ask what
+                  you can answer from FACTS. Omit if followupsExhausted signal received.
+  • "action"    — Optional. Only when a link genuinely adds value. Omit the key entirely otherwise.
+  • NEVER pad. NEVER repeat the question back. NEVER add pleasantries.
 
 ════════════════════════════════════════
 ANSWER QUALITY RULES

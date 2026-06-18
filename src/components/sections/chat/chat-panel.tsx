@@ -7,10 +7,6 @@ import { BentoCard } from "@/components/shared/bento-card";
 import { GeminiIcon } from "@/components/icons/gemini-icon";
 import { cn } from "@/lib/utils";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 interface Action {
   label: string;
   url: string;
@@ -33,16 +29,15 @@ interface ChatError {
   message: string;
 }
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const STARTER_PROMPTS = [
   "What's Aditya's tech stack?",
   "Tell me about Kraked",
   "Is Aditya open to internships?",
   "What is he currently building?",
 ] as const;
+
+// Hide followup chips after this many assistant replies to save tokens
+const MAX_FOLLOWUP_TURNS = 3;
 
 const SESSION_KEY = "chat-session-id";
 
@@ -55,10 +50,6 @@ function getOrCreateSessionId(): string {
   return id;
 }
 
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
-
 export function ChatPanel() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -69,18 +60,21 @@ export function ChatPanel() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formId = useId();
 
-  // Initialise session id client-side only (avoids SSR mismatch)
   useEffect(() => {
     setSessionId(getOrCreateSessionId());
   }, []);
 
-  // Auto-scroll to latest message
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
   }, [messages, loading]);
+
+  const assistantTurnCount = messages.filter(
+    (m) => m.role === "assistant",
+  ).length;
+  const followupsExhausted = assistantTurnCount >= MAX_FOLLOWUP_TURNS;
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -99,7 +93,6 @@ export function ChatPanel() {
       setInput("");
       setLoading(true);
 
-      // Build the history array for the API (user/assistant alternating turns)
       const history = [...messages, userMsg].map((m) =>
         m.role === "user"
           ? { role: "user" as const, content: m.text }
@@ -113,7 +106,6 @@ export function ChatPanel() {
           body: JSON.stringify({ id: sessionId, messages: history }),
         });
 
-        // Surface structured errors based on status code
         if (!res.ok) {
           const body = (await res.json().catch(() => ({}))) as {
             error?: string;
@@ -135,7 +127,6 @@ export function ChatPanel() {
                 : "Something went wrong — please try again."),
           });
 
-          // Roll back the optimistic user message on error
           setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
           return;
         }
@@ -147,7 +138,6 @@ export function ChatPanel() {
           { id: crypto.randomUUID(), role: "assistant", payload },
         ]);
       } catch {
-        // True network failure (offline, DNS, etc.)
         setError({
           kind: "network",
           message: "Connection error — check your internet and try again.",
@@ -173,7 +163,7 @@ export function ChatPanel() {
 
   return (
     <BentoCard className="flex h-[75vh] flex-col gap-0 p-0 lg:h-[calc(100vh-176px)]">
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
         <GeminiIcon />
         <div>
@@ -186,7 +176,7 @@ export function ChatPanel() {
         </div>
       </div>
 
-      {/* ── Message list ── */}
+      {/* Message list */}
       <div
         ref={scrollRef}
         role="log"
@@ -199,26 +189,35 @@ export function ChatPanel() {
         ) : (
           <div className="flex flex-col gap-4">
             <AnimatePresence initial={false}>
-              {messages.map((m) =>
-                m.role === "user" ? (
-                  <UserBubble key={m.id} text={m.text} />
-                ) : (
+              {messages.map((m) => {
+                if (m.role === "user")
+                  return <UserBubble key={m.id} text={m.text} />;
+
+                const isLatest = m === messages[messages.length - 1];
+                const showFollowups = isLatest && !followupsExhausted;
+
+                return (
                   <AssistantBubble
                     key={m.id}
                     payload={m.payload}
                     onFollowup={sendMessage}
-                    isLatest={m === messages[messages.length - 1]}
+                    isLatest={isLatest}
+                    showFollowups={showFollowups}
                   />
-                ),
-              )}
+                );
+              })}
             </AnimatePresence>
 
             {loading && <TypingIndicator />}
+
+            {followupsExhausted && !loading && (
+              <p className="text-center text-xs text-muted-foreground/50 mt-1"></p>
+            )}
           </div>
         )}
       </div>
 
-      {/* ── Error banner ── */}
+      {/* Error banner */}
       <AnimatePresence>
         {error && (
           <motion.div
@@ -250,7 +249,7 @@ export function ChatPanel() {
         )}
       </AnimatePresence>
 
-      {/* ── Input area ── */}
+      {/* Input area */}
       <div
         role="form"
         aria-label="Send a message"
@@ -290,10 +289,6 @@ export function ChatPanel() {
     </BentoCard>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
 
 function EmptyState({ onPick }: { onPick: (text: string) => void }) {
   return (
@@ -348,10 +343,12 @@ function AssistantBubble({
   payload,
   onFollowup,
   isLatest,
+  showFollowups,
 }: {
   payload: AssistantPayload;
   onFollowup: (text: string) => void;
   isLatest: boolean;
+  showFollowups: boolean;
 }) {
   return (
     <motion.div
@@ -360,20 +357,18 @@ function AssistantBubble({
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
       className="flex flex-col items-start gap-2"
     >
-      {/* Reply bubble */}
       <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-white/10 bg-white/5 px-4 py-2.5 text-sm leading-relaxed text-foreground">
         {payload.reply}
       </div>
 
-      {/* Action + follow-up chips — only on the latest assistant message */}
-      {isLatest && (
+      {showFollowups && (
         <motion.div
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.25 }}
           className="flex flex-wrap gap-2"
         >
-          {payload.action && (
+          {payload.action != null && (
             <a
               href={payload.action.url}
               target="_blank"

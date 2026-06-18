@@ -3,21 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { chatRatelimit } from "@/lib/ratelimit";
 import { SYSTEM_PROMPT } from "@/config/assistant-knowledge";
 
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
-
 export const maxDuration = 30;
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-// Soft cap: leaves enough headroom for the JSON envelope + 2 followups + action
-const MAX_TOKENS = 1024;
+const MAX_TOKENS = 500;
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+const MAX_HISTORY_TURNS = 2;
 
 type Role = "user" | "assistant";
 
@@ -42,10 +35,6 @@ interface RequestBody {
   messages: ChatMessage[];
 }
 
-// ---------------------------------------------------------------------------
-// Validation helpers
-// ---------------------------------------------------------------------------
-
 function isValidRole(role: unknown): role is Role {
   return role === "user" || role === "assistant";
 }
@@ -65,14 +54,12 @@ function isValidMessages(messages: unknown): messages is ChatMessage[] {
 }
 
 function parsePayload(raw: string): AssistantPayload {
-  // Strip any accidental markdown fences (safety net even with json_object mode)
   const clean = raw
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/, "")
     .trim();
   const parsed = JSON.parse(clean) as Partial<AssistantPayload>;
 
-  // Validate required fields — surface schema errors early
   if (typeof parsed.reply !== "string" || !parsed.reply.trim()) {
     throw new Error("Missing or empty 'reply' field");
   }
@@ -90,14 +77,12 @@ function parsePayload(raw: string): AssistantPayload {
     (typeof parsed.action.label !== "string" ||
       typeof parsed.action.url !== "string")
   ) {
-    // Action is malformed — drop it rather than hard-failing
     delete parsed.action;
   }
 
   return parsed as AssistantPayload;
 }
 
-// Canonical fallback — safe, always valid
 function fallbackPayload(): AssistantPayload {
   return {
     reply:
@@ -106,12 +91,7 @@ function fallbackPayload(): AssistantPayload {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Route handler
-// ---------------------------------------------------------------------------
-
 export async function POST(req: Request): Promise<NextResponse> {
-  // ── Rate limiting ──────────────────────────────────────────────────────────
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
 
@@ -127,7 +107,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  // ── Parse + validate request body ─────────────────────────────────────────
   let body: RequestBody;
 
   try {
@@ -152,7 +131,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  // ── Call Groq ──────────────────────────────────────────────────────────────
+  const trimmedMessages = messages.slice(-MAX_HISTORY_TURNS);
+
   let payload: AssistantPayload;
 
   try {
@@ -165,18 +145,18 @@ export async function POST(req: Request): Promise<NextResponse> {
       body: JSON.stringify({
         model: GROQ_MODEL,
         temperature: 0.3,
-        max_tokens: MAX_TOKENS,
-        // Forces the model to emit valid JSON — eliminates parse failures
+        max_tokens: MAX_TOKENS, // 400 vs old 1024
         response_format: { type: "json_object" },
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...trimmedMessages,
+        ],
       }),
     });
 
     if (!groqRes.ok) {
       const errText = await groqRes.text();
       console.error("[chat/route] Groq error:", groqRes.status, errText);
-
-      // Distinguish quota / server errors for observability
       const status = groqRes.status === 429 ? 503 : 502;
       return NextResponse.json(
         { error: "AI service unavailable — please try again." },
@@ -197,7 +177,6 @@ export async function POST(req: Request): Promise<NextResponse> {
       try {
         payload = parsePayload(rawText);
       } catch (parseErr) {
-        // Log the raw text for debugging without exposing it to the client
         console.error(
           "[chat/route] JSON parse/validation failed:",
           parseErr,
@@ -215,18 +194,12 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  // ── Persist conversation ───────────────────────────────────────────────────
-  // Fire-and-forget — never let DB errors block the response
-  persistConversation(id, messages, payload.reply).catch((err) =>
+  persistConversation(id, trimmedMessages, payload.reply).catch((err) =>
     console.error("[chat/route] Persistence failed:", err),
   );
 
   return NextResponse.json(payload);
 }
-
-// ---------------------------------------------------------------------------
-// Persistence (fire-and-forget)
-// ---------------------------------------------------------------------------
 
 async function persistConversation(
   sessionId: string,
@@ -239,7 +212,6 @@ async function persistConversation(
     update: {},
   });
 
-  // Replace all messages for the session atomically
   await prisma.$transaction([
     prisma.chatMessage.deleteMany({ where: { sessionId } }),
     prisma.chatMessage.createMany({
