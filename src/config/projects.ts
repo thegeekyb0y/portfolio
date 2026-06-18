@@ -36,7 +36,7 @@ export const projects: Project[] = [
     slug: "vedaai",
     description: "AI-powered exam paper generation platform",
     longDescription: `VedaAI lets teachers generate full exam papers in seconds using Groq AI. Built a BullMQ job queue for async paper generation, Socket.IO for real-time progress updates, and a PDF export pipeline. Frontend on Vercel, backend on Railway with MongoDB.`,
-    image: "/pg3.png",
+    image: "/projects/pg4.png",
     liveUrl: "https://veda-ai-nu.vercel.app",
     githubUrl: "https://github.com/thegeekyb0y/vedaai",
     tags: ["Next.js", "TypeScript", "Groq", "BullMQ", "Socket.IO"],
