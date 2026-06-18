@@ -71,7 +71,9 @@ export async function POST(req: Request) {
       ? replyMatch[1].replace(/\\n/g, " ").replace(/\\"/g, '"')
       : null;
     parsed = {
-      reply: salvaged ?? "Something went wrong — please try again.",
+      reply:
+        salvaged ??
+        "I don't have enough details on that — check out Aditya's LinkedIn or drop him a message via the contact form.",
       followups: ["What projects has he built?", "Is he open to internships?"],
     };
   }
