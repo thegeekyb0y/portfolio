@@ -1,58 +1,80 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useId } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp, AlertCircle, ExternalLink } from "lucide-react";
+import { ArrowUp, AlertCircle, ExternalLink, RefreshCw } from "lucide-react";
 import { BentoCard } from "@/components/shared/bento-card";
 import { GeminiIcon } from "@/components/icons/gemini-icon";
 import { cn } from "@/lib/utils";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
-type Action = { label: string; url: string };
+interface Action {
+  label: string;
+  url: string;
+}
 
-type AssistantPayload = {
+interface AssistantPayload {
   reply: string;
   followups: [string, string];
   action?: Action;
-};
+}
 
 type Message =
   | { id: string; role: "user"; text: string }
   | { id: string; role: "assistant"; payload: AssistantPayload };
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+type ErrorKind = "rate_limit" | "network" | "unknown";
+
+interface ChatError {
+  kind: ErrorKind;
+  message: string;
+}
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
 const STARTER_PROMPTS = [
   "What's Aditya's tech stack?",
   "Tell me about Kraked",
   "Is Aditya open to internships?",
   "What is he currently building?",
-];
+] as const;
 
-function getOrCreateSessionId() {
-  const KEY = "chat-session-id";
-  let id = localStorage.getItem(KEY);
+const SESSION_KEY = "chat-session-id";
+
+function getOrCreateSessionId(): string {
+  let id = localStorage.getItem(SESSION_KEY);
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem(KEY, id);
+    localStorage.setItem(SESSION_KEY, id);
   }
   return id;
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 
 export function ChatPanel() {
-  const [sessionId, setSessionId] = useState<string>();
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ChatError | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const formId = useId();
 
-  useEffect(() => setSessionId(getOrCreateSessionId()), []);
+  // Initialise session id client-side only (avoids SSR mismatch)
+  useEffect(() => {
+    setSessionId(getOrCreateSessionId());
+  }, []);
 
+  // Auto-scroll to latest message
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
@@ -62,15 +84,22 @@ export function ChatPanel() {
 
   const sendMessage = useCallback(
     async (text: string) => {
-      if (!text.trim() || loading || !sessionId) return;
+      const trimmed = text.trim();
+      if (!trimmed || loading || !sessionId) return;
+
       setError(null);
 
-      const userMsg: Message = { id: crypto.randomUUID(), role: "user", text };
+      const userMsg: Message = {
+        id: crypto.randomUUID(),
+        role: "user",
+        text: trimmed,
+      };
+
       setMessages((prev) => [...prev, userMsg]);
       setInput("");
       setLoading(true);
 
-      // Build history for the API (user/assistant turns)
+      // Build the history array for the API (user/assistant alternating turns)
       const history = [...messages, userMsg].map((m) =>
         m.role === "user"
           ? { role: "user" as const, content: m.text }
@@ -84,25 +113,45 @@ export function ChatPanel() {
           body: JSON.stringify({ id: sessionId, messages: history }),
         });
 
-        if (res.status === 429) {
-          const body = await res.json();
-          setError(
-            body.error ?? "Too many messages — try again in a few minutes.",
-          );
-          // remove the optimistic user message
+        // Surface structured errors based on status code
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as {
+            error?: string;
+          };
+
+          const kind: ErrorKind =
+            res.status === 429
+              ? "rate_limit"
+              : res.status >= 500
+                ? "network"
+                : "unknown";
+
+          setError({
+            kind,
+            message:
+              body.error ??
+              (kind === "rate_limit"
+                ? "Too many messages — try again in a few minutes."
+                : "Something went wrong — please try again."),
+          });
+
+          // Roll back the optimistic user message on error
           setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
           return;
         }
 
-        if (!res.ok) throw new Error("API error");
+        const payload = (await res.json()) as AssistantPayload;
 
-        const payload: AssistantPayload = await res.json();
         setMessages((prev) => [
           ...prev,
           { id: crypto.randomUUID(), role: "assistant", payload },
         ]);
       } catch {
-        setError("Something went wrong — please try again.");
+        // True network failure (offline, DNS, etc.)
+        setError({
+          kind: "network",
+          message: "Connection error — check your internet and try again.",
+        });
         setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
       } finally {
         setLoading(false);
@@ -112,9 +161,19 @@ export function ChatPanel() {
     [loading, sessionId, messages],
   );
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(input);
+      }
+    },
+    [input, sendMessage],
+  );
+
   return (
     <BentoCard className="flex h-[75vh] flex-col gap-0 p-0 lg:h-[calc(100vh-176px)]">
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
         <GeminiIcon />
         <div>
@@ -122,13 +181,19 @@ export function ChatPanel() {
             Ask my AI assistant
           </h2>
           <p className="text-xs text-muted-foreground">
-            Trained on Aditya&apos;s projects & background
+            Trained on Aditya&apos;s projects &amp; background
           </p>
         </div>
       </div>
 
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5">
+      {/* ── Message list ── */}
+      <div
+        ref={scrollRef}
+        role="log"
+        aria-label="Chat messages"
+        aria-live="polite"
+        className="flex-1 overflow-y-auto px-5 py-5"
+      >
         {messages.length === 0 ? (
           <EmptyState onPick={sendMessage} />
         ) : (
@@ -147,48 +212,77 @@ export function ChatPanel() {
                 ),
               )}
             </AnimatePresence>
+
             {loading && <TypingIndicator />}
           </div>
         )}
       </div>
 
-      {/* Rate limit / error banner */}
+      {/* ── Error banner ── */}
       <AnimatePresence>
         {error && (
           <motion.div
+            key="error-banner"
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.2 }}
-            className="mx-3 mb-1 flex items-start gap-2 rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2.5 text-xs text-orange-300"
+            role="alert"
+            className={cn(
+              "mx-3 mb-1 flex items-start gap-2 rounded-lg border px-3 py-2.5 text-xs",
+              error.kind === "rate_limit"
+                ? "border-orange-500/20 bg-orange-500/10 text-orange-300"
+                : "border-red-500/20 bg-red-500/10 text-red-300",
+            )}
           >
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <span>{error}</span>
+            <span className="flex-1">{error.message}</span>
+            {error.kind !== "rate_limit" && (
+              <button
+                onClick={() => setError(null)}
+                aria-label="Dismiss error"
+                className="ml-auto shrink-0 opacity-60 transition-opacity hover:opacity-100"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Input */}
-      <div className="flex items-end gap-2 border-t border-white/10 p-3">
+      {/* ── Input area ── */}
+      <div
+        role="form"
+        aria-label="Send a message"
+        id={formId}
+        className="flex items-end gap-2 border-t border-white/10 p-3"
+      >
         <textarea
           ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage(input);
-            }
-          }}
+          onKeyDown={handleKeyDown}
           rows={1}
-          placeholder="Ask anything about Aditya..."
-          className="max-h-32 flex-1 resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-white/20"
+          placeholder="Ask anything about Aditya…"
+          aria-label="Message input"
+          disabled={loading}
+          className={cn(
+            "max-h-32 flex-1 resize-none rounded-lg border border-white/10 bg-white/5",
+            "px-3 py-2 text-sm outline-none placeholder:text-muted-foreground",
+            "transition-colors duration-150 focus:border-white/20",
+            "disabled:opacity-50",
+          )}
         />
         <button
           onClick={() => sendMessage(input)}
           disabled={loading || !input.trim()}
           aria-label="Send message"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all duration-150 hover:bg-primary/80 disabled:opacity-40 active:scale-90"
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+            "bg-primary text-primary-foreground",
+            "transition-all duration-150 hover:bg-primary/80",
+            "disabled:opacity-40 active:scale-90",
+          )}
         >
           <ArrowUp className="h-4 w-4" />
         </button>
@@ -197,7 +291,9 @@ export function ChatPanel() {
   );
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
 
 function EmptyState({ onPick }: { onPick: (text: string) => void }) {
   return (
@@ -219,7 +315,11 @@ function EmptyState({ onPick }: { onPick: (text: string) => void }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06, duration: 0.3 }}
             onClick={() => onPick(prompt)}
-            className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:border-white/20 hover:text-foreground active:scale-95"
+            className={cn(
+              "rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-muted-foreground",
+              "transition-all duration-150 hover:-translate-y-0.5 hover:border-white/20 hover:text-foreground",
+              "active:scale-95",
+            )}
           >
             {prompt}
           </motion.button>
@@ -265,7 +365,7 @@ function AssistantBubble({
         {payload.reply}
       </div>
 
-      {/* Action button + followups — only on the latest assistant message */}
+      {/* Action + follow-up chips — only on the latest assistant message */}
       {isLatest && (
         <motion.div
           initial={{ opacity: 0, y: 4 }}
@@ -273,25 +373,32 @@ function AssistantBubble({
           transition={{ delay: 0.15, duration: 0.25 }}
           className="flex flex-wrap gap-2"
         >
-          {/* External link action */}
           {payload.action && (
             <a
               href={payload.action.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-xs font-medium text-foreground transition-all duration-150 hover:-translate-y-0.5 hover:border-white/25 active:scale-95"
+              className={cn(
+                "flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8",
+                "px-3 py-1.5 text-xs font-medium text-foreground",
+                "transition-all duration-150 hover:-translate-y-0.5 hover:border-white/25",
+                "active:scale-95",
+              )}
             >
               <ExternalLink className="h-3 w-3 shrink-0" />
               {payload.action.label}
             </a>
           )}
 
-          {/* Followup question chips */}
           {payload.followups.map((q) => (
             <button
               key={q}
               onClick={() => onFollowup(q)}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-muted-foreground transition-all duration-150 hover:-translate-y-0.5 hover:border-white/20 hover:text-foreground active:scale-95"
+              className={cn(
+                "rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-muted-foreground",
+                "transition-all duration-150 hover:-translate-y-0.5 hover:border-white/20 hover:text-foreground",
+                "active:scale-95",
+              )}
             >
               {q}
             </button>
@@ -304,7 +411,7 @@ function AssistantBubble({
 
 function TypingIndicator() {
   return (
-    <div className="flex justify-start">
+    <div className="flex justify-start" aria-label="Assistant is typing">
       <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/10 bg-white/5 px-4 py-3">
         {[0, 1, 2].map((i) => (
           <motion.span
