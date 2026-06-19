@@ -1,16 +1,21 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { redis } from "@/lib/redis";
+import { RATE_LIMIT, REDIS_KEYS } from "@/config/constants";
 
-// 10 messages per 10 minutes per IP (was 20)
-// Followup spam is blocked client-side at 3, so 10 is plenty for real users
 export const chatRatelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, "10 m"),
-  prefix: "ratelimit:chat",
+  limiter: Ratelimit.slidingWindow(
+    RATE_LIMIT.chat.requests,
+    RATE_LIMIT.chat.window,
+  ),
+  prefix: REDIS_KEYS.chatRateLimit,
 });
 
 export const contactRatelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(5, "10 m"),
-  prefix: "ratelimit:contact",
+  limiter: Ratelimit.slidingWindow(
+    RATE_LIMIT.contact.requests,
+    RATE_LIMIT.contact.window,
+  ),
+  prefix: REDIS_KEYS.contactRateLimit,
 });

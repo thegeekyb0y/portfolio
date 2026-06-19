@@ -3,16 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { chatRatelimit } from "@/lib/ratelimit";
 import { SYSTEM_PROMPT } from "@/config/assistant-knowledge";
 import { sanitizeUserMessage } from "@/sanitize-input";
+import {
+  GROQ_API_URL,
+  GROQ_MODEL,
+  GROQ_TIMEOUT_MS,
+  MAX_TOKENS,
+} from "@/config/constants";
 
 export const maxDuration = 30;
-
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
-
-// Enough tokens for a 70-word reply + followups + action, with headroom
-const MAX_TOKENS = 300;
-
-const GROQ_TIMEOUT_MS = 8_000;
 
 type Role = "user" | "assistant";
 

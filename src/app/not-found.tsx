@@ -21,7 +21,7 @@ export default function NotFound() {
         className="
           pointer-events-none absolute
           text-[clamp(180px,40vw,380px)] font-bold leading-none tracking-tighter
-          text-white/[0.03]
+          text-white/3
         "
       >
         404
@@ -60,7 +60,7 @@ export default function NotFound() {
         </div>
 
         {/* main line */}
-        <p className="text-[15px] leading-relaxed text-white/60 max-w-[240px]">
+        <p className="text-[15px] leading-relaxed text-white/60 max-w-60">
           This page doesn&apos;t exist, or was moved somewhere else.
         </p>
 

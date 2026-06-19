@@ -1,4 +1,6 @@
-export const MAX_USER_MESSAGE_LENGTH = 500;
+import { MAX_USER_MESSAGE_LENGTH } from "./config/constants";
+
+MAX_USER_MESSAGE_LENGTH;
 
 const INJECTION_PATTERNS: RegExp[] = [
   // "ignore (all / previous / above / prior) instructions"

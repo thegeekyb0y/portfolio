@@ -6,6 +6,7 @@ import { ArrowUp, AlertCircle, ExternalLink, RefreshCw } from "lucide-react";
 import { BentoCard } from "@/components/shared/bento-card";
 import { GeminiIcon } from "@/components/icons/gemini-icon";
 import { cn } from "@/lib/utils";
+import { MAX_FOLLOWUP_TURNS, SESSION_KEY } from "@/config/constants";
 
 interface Action {
   label: string;
@@ -37,9 +38,6 @@ const STARTER_PROMPTS = [
 ] as const;
 
 // Hide followup chips after this many assistant replies to save tokens
-const MAX_FOLLOWUP_TURNS = 3;
-
-const SESSION_KEY = "chat-session-id";
 
 function getOrCreateSessionId(): string {
   let id = localStorage.getItem(SESSION_KEY);
