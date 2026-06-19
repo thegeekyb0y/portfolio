@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { chatRatelimit } from "@/lib/ratelimit";
 import { SYSTEM_PROMPT } from "@/config/assistant-knowledge";
+import { sanitizeUserMessage } from "@/sanitize-input";
 
 export const maxDuration = 30;
 
@@ -147,6 +148,15 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
+  const sanitizedContent = sanitizeUserMessage(latestUserMessage.content);
+
+  if (!sanitizedContent) {
+    return NextResponse.json(
+      { error: "Message is empty after sanitization." },
+      { status: 400 },
+    );
+  }
+
   let payload: AssistantPayload;
 
   try {
@@ -163,7 +173,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: latestUserMessage.content },
+          { role: "user", content: sanitizedContent },
         ],
       }),
     });
