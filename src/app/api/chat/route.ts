@@ -12,6 +12,8 @@ const GROQ_MODEL = "llama-3.3-70b-versatile";
 // Enough tokens for a 70-word reply + followups + action, with headroom
 const MAX_TOKENS = 300;
 
+const GROQ_TIMEOUT_MS = 8_000;
+
 type Role = "user" | "assistant";
 
 interface ChatMessage {
@@ -134,9 +136,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  // Stateless: only send the latest user message — no history.
-  // The system prompt has all the context needed to answer any question.
-  // This halves input tokens compared to keeping 2 turns of history.
   const latestUserMessage = [...messages]
     .reverse()
     .find((m) => m.role === "user");
@@ -160,23 +159,33 @@ export async function POST(req: Request): Promise<NextResponse> {
   let payload: AssistantPayload;
 
   try {
-    const groqRes = await fetch(GROQ_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        temperature: 0.4,
-        max_tokens: MAX_TOKENS,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: sanitizedContent },
-        ],
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS);
+
+    let groqRes: Response;
+
+    try {
+      groqRes = await fetch(GROQ_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          temperature: 0.4,
+          max_tokens: MAX_TOKENS,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: sanitizedContent },
+          ],
+        }),
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!groqRes.ok) {
       const errText = await groqRes.text();
@@ -210,8 +219,20 @@ export async function POST(req: Request): Promise<NextResponse> {
         payload = fallbackPayload();
       }
     }
-  } catch (networkErr) {
-    console.error("[chat/route] Network error calling Groq:", networkErr);
+  } catch (err) {
+    // Distinguish a self-inflicted timeout from a genuine network failure
+    // so logs are actionable and the status code is accurate.
+    if (err instanceof Error && err.name === "AbortError") {
+      console.error(
+        `[chat/route] Groq request timed out after ${GROQ_TIMEOUT_MS}ms`,
+      );
+      return NextResponse.json(
+        { error: "AI service took too long — please try again." },
+        { status: 504 },
+      );
+    }
+
+    console.error("[chat/route] Network error calling Groq:", err);
     return NextResponse.json(
       { error: "AI service unavailable — please try again." },
       { status: 503 },
