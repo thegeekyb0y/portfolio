@@ -13,6 +13,7 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://thegeekyb0y.vercel.app"),
   title: "Aditya Tiwari : Full Stack Engineer",
   description:
     "Full-stack engineer building production-grade software with TypeScript, Next.js, and modern web tooling.",
@@ -25,24 +26,18 @@ export const metadata: Metadata = {
     "Software Engineer",
   ],
   authors: [{ name: "Aditya Tiwari" }],
+  openGraph: {
+    title: "Aditya Tiwari : Full Stack Engineer",
+    description:
+      "Full-stack engineer building production-grade software with TypeScript, Next.js, and modern web tooling.",
+    siteName: "Aditya Tiwari",
+    url: "https://thegeekyb0y.vercel.app",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aditya Tiwari : Full Stack Engineer",
+    description:
+      "Full-stack engineer building production-grade software with TypeScript, Next.js, and modern web tooling.",
+  },
 };
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" className={`${bricolage.variable} dark h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <AuroraBackground /> {/* ← fixed, full screen */}
-        <div className="max-w-7xl mx-auto w-full flex flex-col px-4">
-          <Navbar />
-
-          {children}
-        </div>
-        <Analytics />
-      </body>
-    </html>
-  );
-}
