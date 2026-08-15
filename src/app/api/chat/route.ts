@@ -173,6 +173,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         body: JSON.stringify({
           model: GROQ_MODEL,
           temperature: 0.4,
+          reasoning_effort: "low",
           max_tokens: MAX_TOKENS,
           response_format: { type: "json_object" },
           messages: [

@@ -1,6 +1,6 @@
 // ── AI ──────────────────────────────────────────────
 export const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-export const GROQ_MODEL = "llama-3.3-70b-versatile";
+export const GROQ_MODEL = "openai/gpt-oss-120b";
 export const GROQ_TIMEOUT_MS = 8_000;
 export const MAX_TOKENS = 300;
 
