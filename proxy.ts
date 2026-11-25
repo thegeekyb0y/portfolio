@@ -44,7 +44,7 @@ function applyCorsHeaders(
   return response;
 }
 
-export function middleware(req: NextRequest): NextResponse {
+export function proxy(req: NextRequest): NextResponse {
   const origin = req.headers.get("origin");
   const allowedOrigin = resolveOriginHeader(origin);
 
