@@ -12,7 +12,10 @@ const bricolage = Bricolage_Grotesque({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Aditya Tiwari : Full Stack Engineer",
   description:
     "Full-stack engineer building production-grade software with TypeScript, Next.js, and modern web tooling.",
