@@ -30,12 +30,20 @@ My personal portfolio site, built with Next.js. Includes an AI chat assistant, a
 
    ```bash
    DATABASE_URL=
+   DIRECT_URL=
    GROQ_API_KEY=
    RESEND_API_KEY=
    CONTACT_EMAIL_TO=
    UPSTASH_REDIS_REST_URL=
    UPSTASH_REDIS_REST_TOKEN=
+   ALLOWED_ORIGINS=
+   NEXT_PUBLIC_SITE_URL=
    ```
+
+   `DIRECT_URL` is the unpooled connection string used for migrations.
+   `ALLOWED_ORIGINS` is a comma-separated list of origins allowed to call the
+   API (empty allows `localhost` in development). `NEXT_PUBLIC_SITE_URL` sets
+   the canonical URL used for metadata and Open Graph images.
 
 3. Run database migrations:
 
