@@ -57,9 +57,12 @@ export function Hero() {
               "opacity-100 group-hover/img:opacity-0",
             )}
           />
-          <img
+          <Image
             src={HOVER_GIF}
             alt="Google it"
+            width={96}
+            height={96}
+            unoptimized
             className={cn(
               "absolute inset-0 size-24 rounded-xl border border-white/10 object-cover",
               "sm:size-24 lg:size-28",

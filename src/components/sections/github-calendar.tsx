@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { GitHubCalendar } from "react-github-calendar";
 import { FaGithub } from "react-icons/fa6";
 import Link from "next/link";
 import { BentoCard } from "@/components/shared/bento-card";
-import { profile } from "@/config/profile";
+
+const emptySubscribe = () => () => {};
 
 export function GithubContributions() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // False during SSR, true after hydration — avoids rendering the calendar
+  // server-side where its date math could differ from the client.
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   return (
     <BentoCard className="h-full">

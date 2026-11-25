@@ -1,7 +1,5 @@
 import { MAX_USER_MESSAGE_LENGTH } from "./config/constants";
 
-MAX_USER_MESSAGE_LENGTH;
-
 const INJECTION_PATTERNS: RegExp[] = [
   // "ignore (all / previous / above / prior) instructions"
   /ignore\s+(all\s+)?(?:previous|prior|above|earlier|old|existing)\s+instructions?/gi,

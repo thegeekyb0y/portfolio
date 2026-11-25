@@ -49,7 +49,6 @@ function getOrCreateSessionId(): string {
 }
 
 export function ChatPanel() {
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,10 +56,6 @@ export function ChatPanel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formId = useId();
-
-  useEffect(() => {
-    setSessionId(getOrCreateSessionId());
-  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -77,8 +72,9 @@ export function ChatPanel() {
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed || loading || !sessionId) return;
+      if (!trimmed || loading) return;
 
+      const sessionId = getOrCreateSessionId();
       setError(null);
 
       const userMsg: Message = {
@@ -146,7 +142,7 @@ export function ChatPanel() {
         inputRef.current?.focus();
       }
     },
-    [loading, sessionId, messages],
+    [loading, messages],
   );
 
   const handleKeyDown = useCallback(
@@ -199,7 +195,6 @@ export function ChatPanel() {
                     key={m.id}
                     payload={m.payload}
                     onFollowup={sendMessage}
-                    isLatest={isLatest}
                     showFollowups={showFollowups}
                   />
                 );
@@ -340,12 +335,10 @@ function UserBubble({ text }: { text: string }) {
 function AssistantBubble({
   payload,
   onFollowup,
-  isLatest,
   showFollowups,
 }: {
   payload: AssistantPayload;
   onFollowup: (text: string) => void;
-  isLatest: boolean;
   showFollowups: boolean;
 }) {
   return (
